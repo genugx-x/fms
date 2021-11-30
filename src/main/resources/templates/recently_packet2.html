@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <title>최근 MOF100 packet</title>
+
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+
+    <!-- import JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="/js/moment-with-locales.min.js"></script>
+
+    <style>
+        th{
+            border: 1px solid #444;
+            background-color: gray;
+        }
+        td{
+            border: 1px solid gray;
+            text-align: right;
+            font-size: 12px;
+        }
+        table{
+            padding: 0px;
+            margin: 0px;
+        }
+        tbody tr:hover{
+            background-color: blanchedalmond;
+        }
+    </style>
+
+</head>
+<body>
+
+<h2>최근 MOF100 packet</h2>
+    <span id="latest_time" /> <!--<span><button value="새로고침" onclick="window.location.reload()">새로고침</button></span>-->
+    <span>
+        <button onclick="window.open('/mof100/csv');void(0);">다운로드</button>
+    </span>
+    <span>
+        <form action="/logout" method="post"><input type="submit" value="로그아웃"/></form>
+    </span>
+    <!--<span><button id="btnStop">중지</button></span>-->
+
+<div id="table_div" style="width: 100%; height: 800px;"></div>
+</body>
+<script th:inline="javascript">
+    let xhr;
+
+
+    google.charts.load('current', {'packages':['table']});
+    google.charts.setOnLoadCallback(drawTable);
+
+    function drawTable() {
+
+        var errorCount = 0;
+
+        const options = {
+            title: 'MOF100 Packet',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+            chartArea:{left:100,top:50,width:'100%',height:'80%'}
+        };
+
+        const table = new google.visualization.Table(document.getElementById('table_div'));
+
+        (function poll() {
+
+            console.log("errorCount", errorCount)
+
+            if (errorCount > 100) return false;
+
+            // console.log("axios test start");
+            // axios.get("/mof100/data", null,
+            //     function(response) {
+            //         console.log(response);
+            //     },
+            //     function(error) {
+            //         console.log(error);
+            //     }
+            // );
+            // console.log("axios test end");
+
+            xhr = $.get({
+                url: "/mof100/data", success: (data) => {
+
+                    console.log("data", data);
+
+                    errorCount = 0;
+
+                    data.forEach(d => d.createAt = moment.utc(d.createAt).utcOffset(540))//.tz("Asia/Seoul"));
+                    document.getElementById("latest_time").innerHTML = `${data[data.length - 1].createAt.format('MM/DD kk:mm:ss.SSS')} - ${data[0].createAt.format('MM/DD kk:mm:ss.SSS')}`
+
+                    //google.charts.setOnLoadCallback(drawChart(data));
+
+                    const table_data = new google.visualization.DataTable();
+                    table_data.addColumn('string', '시간');
+                    table_data.addColumn('number', 'deviceId');
+                    table_data.addColumn('string', 'ip');
+                    table_data.addColumn('number', 'port');
+                    table_data.addColumn('number', '진동최대');
+                    table_data.addColumn('number', '진동최소');
+                    table_data.addColumn('number', '진동편차');
+                    table_data.addColumn('number', '진동평균');
+                    table_data.addColumn('number', '전류최대');
+                    table_data.addColumn('number', '전류최소');
+                    table_data.addColumn('number', '전류편차');
+                    table_data.addColumn('number', '전류평균');
+                    table_data.addRows(decodeDataForChart(data));
+
+                    /*var options = {
+                        title: 'MOF100',
+                        hAxis: {title: '시간',  titleTextStyle: {color: '#333'}},
+                        vAxis: {minValue: 0}
+                    };*/
+
+                    //var chart = new google.visualization.AreaChart(document.getElementById('curve_chart'));
+
+                    table.draw(table_data, {showRowNumber: true, width: '100%'});
+                }
+                , error: (data) => {
+                    console.error(data)
+
+                    errorCount += 1
+
+                    console.log("errorCount:", errorCount)
+
+                    if (errorCount > 100) xhr.abort()
+
+                }
+                , dataType: "json"
+                , complete: poll
+                // , timeout: 60000
+                , timeout: 600000
+            })
+        }
+    )();
+
+    }
+
+    decodeDataForChart= (data) => {
+        return data.map(d=> {
+            return [d.createAt.format('kk:mm:ss'), d.deviceId, d.hostAddress, d.sourcePort].concat(d.payload.map(p=>{return [p.max, p.min, p.deviation, p.avg]})).flat()
+            //return [d.createAt.format('kk:mm:ss')].concat(d.payload.map(p=>{return [p.max, p.min, p.deviation, p.avg]})).flat()
+        });
+    }
+
+    $("#btnStop").click(function (){
+        console.log("click")
+        errorCount=101;
+        console.log("click errorCount", errorCount)
+    })
+
+</script>
+</html>

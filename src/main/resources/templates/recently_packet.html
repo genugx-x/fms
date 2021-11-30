@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>최근 MOF100 packet</title>
+    <style>
+        th{
+            border: 1px solid #444;
+            background-color: gray;
+        }
+        td{
+            border: 1px solid gray;
+            text-align: right;
+            font-size: 12px;
+        }
+        table{
+            padding: 0px;
+            margin: 0px;
+        }
+        tbody tr:hover{
+            background-color: blanchedalmond;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/js/moment-with-locales.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+<h2>최근 MOF100 packet</h2>
+<span id="latest_time"></span> <!--<span><button value="새로고침" onclick="window.location.reload()">새로고침</button></span>-->
+<span><button onclick="window.open('/mof100/csv');void(0);">다운로드</button></span>
+<span><button id="btnStop">중지</button></span>
+
+<div id="curve_chart" style="width: 100%; height: 800px;"></div>
+
+</body>
+<script th:inline="javascript">
+
+    let xhr;
+
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+
+        var errorCount = 0;
+
+        const options = {
+            title: 'MOF100 Packet',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+            chartArea:{left:100,top:50,width:'100%',height:'80%'}
+        };
+
+        const chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        (poll = ()=> {
+
+            console.log("errorCount", errorCount);
+
+            console.log("axios test start");
+            axios.get("/mof100/data", null,
+                function(response) {
+                    console.log(response);
+                },
+                function(error) {
+                    console.log(error);
+                }
+            );
+            console.log("axios test end");
+
+            if (errorCount > 100) return false;
+
+            xhr = $.get({
+                url: "/mof100/data", success: (data) => {
+
+                    console.log("data", data);
+                    errorCount = 0;
+
+                    data.forEach(d => d.createAt = moment.utc(d.createAt).utcOffset(540))//.tz("Asia/Seoul"));
+                    document.getElementById("latest_time").innerHTML = `${data[data.length - 1].createAt.format('MM/DD kk:mm:ss.SSS')} - ${data[0].createAt.format('MM/DD kk:mm:ss.SSS')}`
+
+                    //google.charts.setOnLoadCallback(drawChart(data));
+                    const chartData = google.visualization.arrayToDataTable(
+                        //[['time', 'ch1max', 'ch1min', 'ch1dev', 'ch1avg', 'ch2max', 'ch2min', 'ch2dev', 'ch2avg', 'ch3max', 'ch3min', 'ch3dev', 'ch3avg', 'ch4max', 'ch4min', 'ch4dev', 'ch4avg', 'ch4max', 'ch4min', 'ch4dev', 'ch4avg', 'ch4max', 'ch4min', 'ch4dev', 'ch4avg', 'ch4max', 'ch4min', 'ch4dev', 'ch4avg', 'ch4max', 'ch4min', 'ch4dev', 'ch4avg'],...decodeDataForChart(data)]
+                        [['time', '진동최대', '진동최소', '진동평균', '전류최대', '전류최소', '전류평균'], ...decodeDataForChart(data)]
+                    );
+
+                    /*var options = {
+                        title: 'MOF100',
+                        hAxis: {title: '시간',  titleTextStyle: {color: '#333'}},
+                        vAxis: {minValue: 0}
+                    };*/
+
+                    //var chart = new google.visualization.AreaChart(document.getElementById('curve_chart'));
+
+
+                    chart.draw(chartData, options);
+                }
+                , error: (data) => {
+                    console.error(data);
+
+                    errorCount += 1
+
+                    console.log("errorCount:", errorCount)
+
+                    if (errorCount > 100) xhr.abort()
+
+                }
+                , dataType: "json"
+                , complete: poll
+                , timeout: 600000
+            })
+        }
+    )();
+
+    }
+
+    decodeDataForChart= (data) => {
+        return data.map(d=> {
+            return [d.createAt.format('kk:mm:ss')].concat(d.payload.map(p=>{return [p.max, p.min, p.avg]})).flat()
+            //return [d.createAt.format('kk:mm:ss')].concat(d.payload.map(p=>{return [p.max, p.min, p.deviation, p.avg]})).flat()
+        });
+    }
+
+    $("#btnStop").click(function (){
+        console.log("click")
+        errorCount=101;
+        console.log("click errorCount", errorCount)
+    })
+
+</script>
+</html>
