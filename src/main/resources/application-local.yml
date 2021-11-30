@@ -1,0 +1,32 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27018
+      #database: MOF100
+      database: admin
+      username: qsolmongo
+      password: dataisway
+  #devtools.liverelord.enabled: true
+  #  security:
+  #    user:
+  #      password: '!qsol1235'
+  output:
+    ansi:
+      enabled: always
+#  thymeleaf:
+#    cache: false
+#    prefix: classpath:templates/
+#    mode: HTML
+#    check-template-location: true
+#    template-resolver-order: 0
+#    suffix: .html
+logging:
+  file:
+    path: C:\jeju.data\어업인\logs
+  pattern: "[%d][%p][%M(%L)]-'%m'%n"
+  charset:
+    console: utf-8
+#  level: debug
+#server:
+#  port: 9090

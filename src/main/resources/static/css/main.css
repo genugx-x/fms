@@ -1,0 +1,64 @@
+th{
+    border: 1px solid #444;
+    background-color: gray;
+}
+td{
+    border: 1px solid gray;
+    text-align: right;
+    font-size: 12px;
+}
+table{
+    padding: 0px;
+    margin: 0px;
+}
+tbody tr:hover{
+    background-color: blanchedalmond;
+}
+
+.el-header, .el-footer {
+    background-color: #B3C0D1;
+    color: #333;
+    text-align: center;
+    line-height: 60px;
+}
+
+.el-aside {
+    background-color: #D3DCE6;
+    color: #333;
+    text-align: center;
+    line-height: 200px;
+}
+
+.el-main {
+    background-color: #E9EEF3;
+    color: #333;
+    text-align: center;
+    line-height: 160px;
+}
+
+body > .el-container {
+    margin-bottom: 40px;
+}
+
+.el-container:nth-child(5) .el-aside,
+.el-container:nth-child(6) .el-aside {
+    line-height: 260px;
+}
+
+.el-container:nth-child(7) .el-aside {
+    line-height: 320px;
+}
+
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+    width: 200px;
+    min-height: 427px;
+}
+
+.el-submenu__title {
+    text-align: left;
+}
+
+.el-menu-item {
+    text-align: left;
+    font-size: 13px;
+}

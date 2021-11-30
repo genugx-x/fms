@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  fishery-mongo:
+    image: mongo
+    restart: always
+    container_name: fishery-mongo
+    volumes:
+      - /projects/docker-volumes/mongo/fishery/configdb:/data/configdb
+      - /projects/docker-volumes/mongo/fishery/db:/data/db
+    privileged: true
+    #command: [--auth]
+    ports:
+      - "27018:27017"
+    environment:
+      #- MONGO_INITDB_DATABASE=MOF100
+      - MONGO_INITDB_ROOT_USERNAME=qsolmongo
+      - MONGO_INITDB_ROOT_PASSWORD=dataisway
+      #- TZ=Asia/Seoul
+      #- LANG=C.UTF-8

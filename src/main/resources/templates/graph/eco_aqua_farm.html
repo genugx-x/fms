@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layouts/layout">
+
+<th:block layout:fragment="css">
+    <style>
+
+    </style>
+</th:block>
+
+<el-main layout:fragment="content">
+
+    <span id="latest_time"></span> <!--<span><button value="새로고침" onclick="window.location.reload()">새로고침</button></span>-->
+    <span><button onclick="window.open('/mof100/csv');void(0);">다운로드</button></span>
+    <span><button id="btnStop">중지</button></span>
+    <!-- 그래프 -->
+    <div id="curve_chart" style="width: 100%; height: 800px;"></div>
+
+</el-main>
+
+<th:block layout:fragment="scriptBeforeCreateVue">
+    <script>
+        function vueMounted() {
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(this.drawChart);
+        };
+    </script>
+</th:block>
+
+<th:block layout:fragment="scriptAfterCreateVue">
+</th:block>
+
+</html>
+
+
