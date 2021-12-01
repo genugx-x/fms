@@ -1,4 +1,4 @@
-package kr.co.qsol.fishery.model;
+package kr.co.example.fms.model;
 
 import kr.co.qsol.fishery.util.ByteUtil;
 import lombok.Data;

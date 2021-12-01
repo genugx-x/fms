@@ -1,4 +1,4 @@
-package kr.co.qsol.fishery;
+package kr.co.example.fms;
 
 import kr.co.qsol.fishery.util.ByteUtil;
 import org.junit.jupiter.api.Assertions;

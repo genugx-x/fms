@@ -1,6 +1,6 @@
-package kr.co.qsol.fishery;
+package kr.co.example.fms;
 
-import kr.co.qsol.fishery.model.UserRepository;
+import kr.co.example.fms.model.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,10 +23,10 @@ public class UserCustomService implements UserDetailsService {
 
     }
 
-   public void saveUser(kr.co.qsol.fishery.model.User user) {
+   public void saveUser(kr.co.example.fms.model.User user) {
         //user.setAddress(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setEnabled(true);
-        user.setRoles(kr.co.qsol.fishery.model.User.ROLE.USER);
+        user.setRoles(kr.co.example.fms.model.User.ROLE.USER);
         userRepository.save(user);
     }
 

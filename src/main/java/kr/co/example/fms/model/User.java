@@ -1,4 +1,4 @@
-package kr.co.qsol.fishery.model;
+package kr.co.example.fms.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

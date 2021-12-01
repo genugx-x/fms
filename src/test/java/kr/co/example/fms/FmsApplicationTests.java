@@ -1,10 +1,10 @@
-package kr.co.qsol.fishery;
+package kr.co.example.fms;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FisheryApplicationTests {
+class FmsApplicationTests {
 
     @Test
     void contextLoads() {

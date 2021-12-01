@@ -1,7 +1,7 @@
-package kr.co.qsol.fishery;
+package kr.co.example.fms;
 
 
-import kr.co.qsol.fishery.model.User;
+import kr.co.example.fms.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

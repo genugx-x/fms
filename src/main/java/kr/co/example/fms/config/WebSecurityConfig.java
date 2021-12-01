@@ -1,6 +1,6 @@
-package kr.co.qsol.fishery.config;
+package kr.co.example.fms.config;
 
-import kr.co.qsol.fishery.UserCustomService;
+import kr.co.example.fms.UserCustomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

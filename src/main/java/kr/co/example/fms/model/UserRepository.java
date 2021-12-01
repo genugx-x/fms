@@ -1,4 +1,4 @@
-package kr.co.qsol.fishery.model;
+package kr.co.example.fms.model;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 

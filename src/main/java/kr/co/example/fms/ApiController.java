@@ -1,7 +1,7 @@
-package kr.co.qsol.fishery;
+package kr.co.example.fms;
 
-import kr.co.qsol.fishery.model.ChannelData;
-import kr.co.qsol.fishery.model.MOF100Packet;
+import kr.co.example.fms.model.ChannelData;
+import kr.co.example.fms.model.MOF100Packet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;

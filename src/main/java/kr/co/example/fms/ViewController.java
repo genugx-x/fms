@@ -1,4 +1,4 @@
-package kr.co.qsol.fishery;
+package kr.co.example.fms;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
