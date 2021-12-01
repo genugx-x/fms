@@ -3,6 +3,9 @@
 <head>
     <div th:replace="fragments/head.html :: fragment-head"></div>
     <link rel="stylesheet" href="/css/main.css">
+    <style>
+
+    </style>
 </head>
 <body>
 <div id="vueApp">
@@ -11,17 +14,36 @@
         <el-container>
             <div th:replace="fragments/aside.html :: fragment-aside"></div>
             <el-container>
-                <el-main>
-                    <h2>최근 MOF100 packet</h2>
-                    <span id="latest_time" />
-                    <span>
-                        <button onclick="window.open('/mof100/csv');void(0);">다운로드</button>
-                    </span>
-                    <span>
-                        <form action="/logout" method="post"><input type="submit" value="로그아웃"/></form>
-                    </span>
-                    <div id="table_div" style="width: 100%; height: 800px;"></div>
+                <el-main v-loading="loading"
+                         element-loading-text="Loading..."
+                         element-loading-spinner="el-icon-loading"
+                         element-loading-background="rgba(0, 0, 0, 0.8)">
+                        <el-row type="flex" class="bg-purple-dark" v-show="!loading">
+                            <el-col :span="4" class="el-main-header">
+                                <h2>{{title}}</h2>
+                            </el-col>
+                        </el-row>
+                        <el-row type="flex" justify="end" class="el-main-btn-row" v-show="!loading">
+                            <el-col :span="3" class="el-main-csv-download-btn">
+                                <el-button type="primary">DOWNLOAD as CSV <i class="el-icon-download el-icon-right" onclick="window.open('/mof100/csv');void(0);"></i></el-button>
+                            </el-col>
+                        </el-row>
+                        <el-row type="flex" class="el-main-latest-time-row">
+                            <el-col :span="6" class="el-main-latest-time">
+                                <span id="latest_time"></span>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="24" id="table_div">
+                            </el-col>
+                        </el-row>
+                        <!--                    <span>
 
+                            <button onclick="window.open('/mof100/csv');void(0);">다운로드</button>
+                        </span>
+                        <span>
+                            <form action="/logout" method="post"><input type="submit" value="로그아웃"/></form>
+                        </span>-->
                 </el-main>
             </el-container>
         </el-container>
@@ -40,20 +62,25 @@
         el: '#vueApp',
         data: {
             chart : null,
+            title : 'MOF100 PACKETS',
             options: {
-                title: 'MOF100 Packet',
+                title: 'MOF100 PACKETS',
                 curveType: 'function',
                 legend: { position: 'bottom' },
-                chartArea:{left:100,top:50,width:'100%',height:'80%'},
+                chartArea:{left:100,top:50,width:'100%',height:'600%'},
                 table: null,
             },
             chartData : null,
             xhr : null,
+            loading: false,
+            isLeftMenuCollapse: false,
         },
         methods : {
-            handleMenuItemClick: function (el) {
-                localStorage.setItem("deviceId", el);
-                location.href = "/chart";
+            handleMenuItemClick: function (deviceId) {
+                this.deviceId = deviceId;
+                location.href = "/chart/" + deviceId;
+                // localStorage.setItem("deviceId", el);
+                // location.href = "/chart";
             },
             handleMenuClick: function() {
                 location.href = "/home";
@@ -96,13 +123,14 @@
                                 table_data.addRows(vueApp.decodeDataForTable(data));
 
                                 vueApp.table.draw(table_data, {showRowNumber: true, width: '100%'});
+                                vueApp.loading = false;
                             }
                             , error: (data) => {
                                 console.error(data)
                                 errorCount += 1
                                 console.log("errorCount:", errorCount)
                                 if (errorCount > 100) vueApp.xhr.abort();
-
+                                vueApp.loading = false;
                             }
                             , dataType: "json"
                             , complete: poll
@@ -113,6 +141,7 @@
             },
         },
         mounted: function() {
+            this.loading = true;
             google.charts.load('current', {'packages':['table']});
             google.charts.setOnLoadCallback(this.drawTable);
         }

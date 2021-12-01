@@ -99,7 +99,7 @@ public class ApiController {
         long remainSec = TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(min);
         log.info("Data lookup time ----- {}.{}(sec)", sec, remainMilliSec);
 
-        log.info("list.size():{}", list.size());
+        // log.info("list.size():{}", list.size());
         return ResponseEntity.ok(list);
     }
 
@@ -107,7 +107,7 @@ public class ApiController {
     @GetMapping("/test/data/{deviceId}/{createAt}")
     public ResponseEntity<List<MOF100Packet>> getDataTest(HttpServletRequest request, @PathVariable Long deviceId, @PathVariable String createAt) throws ParseException {
         log.info("/test/data/{}/{} -->{}", deviceId, createAt, request.getRemoteHost());
-        log.info("{}", createAt);
+        // log.info("{}", createAt);
         Query query = new Query();
         query.fields().include("createAt", "dataType", "deviceId", "hostAddress", "sourcePort", "payload");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");

@@ -22,22 +22,34 @@ tbody tr:hover{
     line-height: 60px;
 }
 
+/* AISDE CSS */
 .el-aside {
-    background-color: #D3DCE6;
-    color: #333;
     text-align: center;
-    line-height: 200px;
 }
 
-.el-main {
-    background-color: #E9EEF3;
-    color: #333;
-    text-align: center;
-    line-height: 160px;
+.el-menu {
+    /*background-color: #5c7c96;*/
 }
+.el-menu span {
+    font-weight: 600;
+    font-size: medium;
+    color: #3a5164;
+}
+.el-menu .first {
+    /*color: #3a5164*/
+}
+.el-menu .second {
+    /*color: #e6e1b9;*/
+}
+.el-icon-s-data:before {
+    color: #878af1;
 
-body > .el-container {
-    margin-bottom: 40px;
+}
+.el-icon-tickets:before {
+    color: #57599c;
+}
+.el-menu-item-group {/*background-color: #aebecb;*/
+
 }
 
 .el-container:nth-child(5) .el-aside,
@@ -51,14 +63,88 @@ body > .el-container {
 
 .el-menu-vertical-demo:not(.el-menu--collapse) {
     width: 200px;
-    min-height: 427px;
+    min-height: 835px;
 }
 
-.el-submenu__title {
-    text-align: left;
-}
-
-.el-menu-item {
+.el-menu {
     text-align: left;
     font-size: 13px;
 }
+.el-menu .el-menu-first-item {
+    padding-left: 10px !important;
+}
+.el-submenu__title {
+    text-align: left;
+    padding-left: 10px !important;
+}
+
+.el-menu-item-group {
+    background-color: #f8f9fa;
+}
+
+.el-menu-item-group .el-menu-item{
+    padding-left: 30px !important;
+}
+
+.el-menu-item:focus, .el-menu-item:hover, .el-submenu__title:hover {
+    background-color: #d4dde6;
+}
+
+
+/*******************************************/
+
+
+.el-main {
+    /*background-color: #E9EEF3;*/
+    /*color: #333;*/
+    /*text-align: center;*/
+    /*line-height: 160px;*/
+    height: 840px;
+}
+
+.el-main .el-main-header {
+    text-align: left;
+    /*margin-left: 20px;*/
+}
+
+.el-main .el-main-latest-time-row {
+    /*margin-top: -15px;*/
+}
+
+.el-main .el-main-btn-row {
+    margin-top: -20px;
+    margin-bottom: -10px;
+}
+
+.el-main .el-main-chart row {
+    height: 680px;
+}
+
+body > .el-container {
+    margin-bottom: 40px;
+}
+
+.el-row {
+    /*margin-bottom: 20px;*/
+    &:last-child {
+         margin-bottom: 0;
+     }
+}
+
+.el-col {
+    border-radius: 4px;
+}
+
+.row-bg {
+    padding: 10px 0;
+    background-color: #f9fafc;
+}
+
+#table_div, #curve_chart {
+    width: 100%;
+    height: 660px;
+}
+
+
+
+

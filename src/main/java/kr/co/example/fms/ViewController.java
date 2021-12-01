@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,20 +14,29 @@ import javax.servlet.http.HttpServletRequest;
 public class ViewController {
 
     @GetMapping
-    public ResponseEntity<?> healthCheck(HttpServletRequest request, Model model) {
+    public ResponseEntity<?> healthCheck(HttpServletRequest request) {
         log.info("/ --> {}", request.getRemoteHost());
         return ResponseEntity.ok("I'm very healthy. Thank you!");
     }
 
     @GetMapping("/home")
-    public String ecoaqua(HttpServletRequest request, Model model) {
+    public String home(HttpServletRequest request) {
         log.info("/home --> {}", request.getRemoteHost());
         return "home";
     }
 
-    @GetMapping("/chart")
-    public String graph(HttpServletRequest request, Model model) {
-        log.info("/chart", request.getRemoteHost());
-        return "chart";
+    @GetMapping("/chart/{deviceId}")
+    public String graph(HttpServletRequest request, @PathVariable Integer deviceId) {
+        String view = null;
+        switch (deviceId) {
+            case 1: view = "eco_aqua"; break;
+            case 2: view = "join01"; break;
+            case 3: view = "join02"; break;
+            case 4: view = "central01"; break;
+            case 5: view = "central02"; break;
+            case 6: view = "sgfs"; break;
+        }
+        log.info("/chart/{} <---- {}", view, request.getRemoteHost());
+        return "chart/" + view;
     }
 }
