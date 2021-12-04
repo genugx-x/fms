@@ -1,4 +1,4 @@
-package kr.co.qsol.fishery.util;
+package kr.co.example.fms.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

@@ -1,6 +1,6 @@
 package kr.co.example.fms.model;
 
-import kr.co.qsol.fishery.util.ByteUtil;
+import kr.co.example.fms.util.ByteUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

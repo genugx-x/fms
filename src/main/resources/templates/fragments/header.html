@@ -2,7 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <el-header th:fragment="fragment-header">
-    어업인
+    <el-row type="flex">
+        <el-col class="el-haeder-title">
+            <el-row type="flex" id="title-kor" class="el-header-title-kor-row">
+                <p class="el-header-title-kor-p">실시간 모니터링 테이블 및 차트</p>
+            </el-row>
+            <el-row type="flex" id="title-eng" class="el-header-title-eng-row">
+                <p class="el-header-title-eng-p">Real-time monitoring tables and charts</p>
+            </el-row>
+        </el-col>
+    </el-row>
 </el-header>
 
 </html>

@@ -2,7 +2,7 @@
 <configuration>
 
     <!-- 변수 지정 -->
-    <property name="LOG_PATH" value="/ndata/logs/fishery" />
+    <property name="LOG_PATH" value="/ndata/logs/fms" />
     <property name="LOG_FILE_NAME" value="${LOG_PATH}/mof100" />
     <property name="ERR_LOG_FILE_NAME" value="${LOG_PATH}/mof100-error" />
     <!--<property name="LOG_PATTERN" value="[%yellow(%d{yyyy-MM-dd HH:mm:ss})][%-5p][%F]%M\(%L\)-'%m'%n" />-->

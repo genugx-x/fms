@@ -23,7 +23,7 @@ spring:
 #    suffix: .html
 logging:
   file:
-    path: D:/logs/fishery
+    path: D:/logs/fms
   pattern: "[%d][%p][%M(%L)]-'%m'%n"
   charset:
     console: utf-8

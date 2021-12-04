@@ -6,34 +6,26 @@
 
 <th:block layout:fragment="css">
     <style>
-
     </style>
 </th:block>
 
 <div layout:fragment="content">
-    <div id="curve_chart"></div>
+    <div id="curve_chart">
+        <template v-if="!isHaveDatas" v-show="!loading">
+            <h4 style="color: #8a91a8;margin-left: 15px;">
+                조회된 데이터가 없습니다.
+            </h4>
+        </template>
+    </div>
 </div>
 
 <th:block layout:fragment="scriptBeforeCreateVue">
     <script>
         function vueMounted() {
-
-            let menuitem = document.getElementById("chart-menu");
-            console.log(menuitem);
-            menuitem.classList.add("is-opened");
-            menuitem.setAttribute("aria-expanded", "true");
-            menuitem.style.backgroundColor = "#d4dde6";
-
-            menuitem.childNodes.item(1).style.display = '';
-
-            let itemGroup = document.getElementById("chart-item-group");
-            itemGroup.style.display = "";
-            let ecoaqua = document.getElementById("ecoaqua");
-            ecoaqua.style.backgroundColor = "#d4dde6";
-
             this.loading = true;
             this.deviceId = 1;
             this.setMainHeader();
+            this.menuItemClickEvent("eco_aqua");
             google.charts.load('current', {'packages':['corechart']});
             google.charts.setOnLoadCallback(this.drawChart);
         };

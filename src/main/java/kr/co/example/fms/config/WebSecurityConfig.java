@@ -19,58 +19,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        http.authorizeRequests()
-//                .antMatchers("/**").permitAll()
-//                .antMatchers("/admin/**").hasRole("ADMIN")
-//                .antMatchers("/mof100/**").hasRole("USER")
-//                .antMatchers("/", "/login","/**").permitAll()
-//                .and()
-//                .formLogin()
-//                .and()
-//                .csrf().disable();
+        http.authorizeRequests()
+                // .antMatchers("/**").permitAll()
+                .antMatchers("/").hasRole("ADMIN")
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/mof100_packets").hasRole("USER")
+                .antMatchers("/chart/**").hasRole("USER")
+                .antMatchers("/login","/**").permitAll()
+                .and()
+                .formLogin().defaultSuccessUrl("/mof100_packets", true)
+                .and()
+                .csrf().disable();
     }
 
    @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        /*auth.userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());*/
-
-//       auth.inMemoryAuthentication()
-//               .withUser("user").password("{noop}!qsol1235")
-//               .authorities("ROLE_USER")
-//               .and()
-//               .withUser("device6").password("{noop}qsol!@#$")
-//               .authorities("ROLE_USER")
-//               .and()
-//               .withUser("keti").password("{noop}keti1234")
-//               .authorities("ROLE_USER")
-//               .and()
-//               .withUser("hoseo").password("{noop}oceanit212")
-//               .authorities("ROLE_USER")
-//               .and()
-//                // 수정
-//               .withUser("ecoaqua").password("{noop}1z2x3c4v")
-//               .authorities("ROLE_USER")
-//               .and()
-//               .withUser("join01").password("{noop}1z2x3c4v")
-//               .authorities("ROLE_USER")
-//               .and()
-//               .withUser("join02").password("{noop}1z2x3c4v")
-//               .authorities("ROLE_USER")
-//               .and()
-//               .withUser("central01").password("{noop}1z2x3c4v")
-//               .authorities("ROLE_USER")
-//               .and()
-//               .withUser("central02").password("{noop}1z2x3c4v")
-//               .authorities("ROLE_USER")
-//               .and()
-//               .withUser("sgfs").password("{noop}1z2x3c4v")
-//               .authorities("ROLE_USER");
-
+        auth.inMemoryAuthentication()
+                .withUser("sbkang").password("{noop}1z2x3c4v")
+                .authorities("ROLE_USER");
     }
 
-   /* @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }*/
 }

@@ -17,17 +17,41 @@
                          element-loading-text="Loading..."
                          element-loading-spinner="el-icon-loading"
                          element-loading-background="rgba(0, 0, 0, 0.8)">
-                    <el-row type="flex" class="" v-show="!loading">
+                    <el-row type="flex" v-show="!loading">
                         <el-col :span="12" class="el-main-header">
-                            <h2>{{fisheryName}}</h2> <span> {{address}} | {{fishSpecies}}</span>
+                            <h2>{{fmsName}}</h2> <span> {{address}} | {{fishSpecies}}</span>
+                        </el-col>
+                    </el-row>
+                    <el-row class="el-main-hr" v-show="!loading">
+                        <el-col :span="24">
+                            <hr />
                         </el-col>
                     </el-row>
                     <el-row type="flex" justify="end" class="el-main-btn-row" v-show="!loading">
                         <el-col :span="3" class="el-main-csv-download-btn">
-                            <el-button type="primary">DOWNLOAD as CSV <i class="el-icon-download el-icon-right" onclick="window.open('/mof100/csv');void(0);"></i></el-button>
+                            <el-button id="csv-download-btn" type="primary" @click="downloadCsv" :loading="downloading" style="margin-right: -10px;">
+                                <template v-if="!downloading">
+                                    DOWNLOAD as CSV <i class="el-icon-download el-icon-right"></i>
+                                </template>
+                                <template v-else>
+                                    DownLoading...
+                                </template>
+                            </el-button>
                         </el-col>
                         <el-col :span="2" class="el-main-pause-btn" v-show="!loading">
-                            <el-button onclick="console.log('PAUSE!');void(0);">PAUSE <i class="el-icon-video-pause"></i></el-button>
+                            <el-button @click="pauseRead" :loading="pausing">
+                                <template v-if="pausing">
+                                    PAUSING...
+                                </template>
+                                <template v-else>
+                                    <template v-if="!pause">
+                                        PAUSE <i class="el-icon-video-pause"></i>
+                                    </template>
+                                    <template v-else>
+                                        RESTART <i class="el-icon-video-play"></i>
+                                    </template>
+                                </template>
+                            </el-button>
                         </el-col>
                     </el-row>
                     <el-row type="flex" class="el-main-latest-time-row" v-show="!loading">
@@ -39,11 +63,6 @@
                         <div layout:fragment="content"></div>
                     </el-row>
                 </el-main>
-                <!--
-                <span>
-                    <form action="/logout" method="post"><input type="submit" value="로그아웃"/></form>
-                </span>
-                -->
             </el-container>
         </el-container>
         <div th:replace="fragments/footer.html :: fragment-footer"></div>
@@ -64,7 +83,7 @@
     let vueApp = new Vue({
         el: '#vueApp',
         data: {
-            fisheryName : '',
+            fmsName : '',
             address : '',
             fishSpecies : '',
             chart : null,
@@ -100,8 +119,11 @@
             deviceId : 0,
             createAt : '',
             loading: false,
+            downloading: false,
             isDraw: false,
-            open: '',
+            pause: false,
+            pausing: false,
+            isHaveDatas: false,
         },
         methods : {
             handleMenuItemClick: function (deviceId) {
@@ -111,13 +133,21 @@
                 loading = true;
             },
             handleMenuClick: function() {
-                location.href = "/home";
+                location.href = "/mof100_packets";
             },
             handleOpen(key, keyPath) {
-                console.log(key, keyPath);
+                //console.log(key, keyPath);
             },
             handleClose(key, keyPath) {
-                console.log(key, keyPath);
+                //console.log(key, keyPath);
+            },
+            downloadCsv() {
+                console.log("Called downloadCsv()");
+                location.replace("/download/csv/" + this.deviceId);
+                this.downloading = true;
+                setTimeout(function() {
+                    vueApp.downloading = false;
+                }, 3000);
             },
             decodeDataForChart(data) {
                 let decodedData = data.map(d => {
@@ -134,38 +164,47 @@
                 this.chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
                 // this.chart = new google.charts.Line(document.getElementById('curve_chart'));
                 (poll = () => {
+                    vueApp.isHaveDatas = true;
                     //console.log("errorCount", errorCount);
                     if (errorCount > 100) return false;
-                    let url = "/test/data/" + vueApp.deviceId
-                    if (vueApp.createAt != '') url += "/" + vueApp.createAt;
-                    //console.log("url", url);
+                    else if (vueApp.pause) return false;
+                    // let url = "/test/data/" + vueApp.deviceId // 개발시 사용 코드
+                    let url = "/mof100/data/" + vueApp.deviceId
+                    // if (vueApp.createAt != '') url += "/" + vueApp.createAt; //개발시 사용 코드
                     this.xhr = $.get({
                         url: url,
                         success: (data) => {
                             //console.log("data", data);
                             if(data.length == 0) {
                                 vueApp.xhr.abort();
-                                throw new Error("조회된 데이터가 없습니다.");
+                                this.openNoDataMessage();
+                                vueApp.loading = false;
+                                vueApp.isHaveDatas = false;
+                                throw new Error("There is no searched data.");
                             }
                             errorCount = 0;
                             data.forEach(d => d.createAt = moment.utc(d.createAt).utcOffset(540))//.tz("Asia/Seoul"));
-                            vueApp.createAt = data[10].createAt.format('YYYY-MM-DDTkk:mm:ss.SSS');
-                            //console.log("vueApp.createAt", vueApp.createAt);
+                            // vueApp.createAt = data[10].createAt.format('YYYY-MM-DDTkk:mm:ss.SSS'); // 개발시 사용 코드
                             document.getElementById("latest_time").innerHTML = `${data[data.length - 1].createAt.format('MM/DD kk:mm:ss.SSS')} ~ ${data[0].createAt.format('MM/DD kk:mm:ss.SSS')}`
-                            // vueApp.options.title = `${data[data.length - 1].createAt.format('MM/DD kk:mm:ss.SSS')} ~ ${data[0].createAt.format('MM/DD kk:mm:ss.SSS')}`;
                             vueApp.chartData = google.visualization.arrayToDataTable(
                                 [['time', '진동최대', '진동최소', '진동평균', '전류최대', '전류최소', '전류평균'], ...vueApp.decodeDataForChart(data)]
                             );
                             //vueApp.chart.draw(this.chartData, google.charts.Line.convertOptions(vueApp.options));
                             vueApp.chart.draw(this.chartData, vueApp.options);
                             vueApp.loading = false;
+                            vueApp.pausing = false;
                         }
                         , error: (data) => {
-                            //console.error(data);
+                            console.log("Called error");
+                            console.log(data);
                             errorCount += 1
                             //console.log("errorCount:", errorCount)
-                            if (errorCount > 100) vueApp.xhr.abort()
+                            if (errorCount > 100) {
+                                vueApp.xhr.abort();
+                                vueApp.pause = true;
+                            }
                             vueApp.loading = false;
+                            vueApp.pausing = false;
                         }
                         , dataType: "json"
                         , complete: poll
@@ -176,37 +215,78 @@
             setMainHeader: function() {
                 switch (this.deviceId) {
                     case 1:
-                        this.fisheryName = "에코아쿠아팜";
-                        this.address = "제주시 구좌읍 행원리 1-39";
-                        this.fishSpecies = "넙치 (광어)";
+                        this.fmsName = "장치1";
+                        this.address = "주소1";
+                        this.fishSpecies = "업종";
                         break;
                     case 2:
-                        this.fisheryName = "조인영어조합법인(1)";
-                        this.address = "전북 고창군 심원면 선운대로 2517-8";
-                        this.fishSpecies = "어종 : 뱀장어";
+                        this.fmsName = "장치2";
+                        this.address = "주소2";
+                        this.fishSpecies = "업종";
                         break;
                     case 3:
-                        this.fisheryName = "조인영어조합법인(2)";
-                        this.address = "전북 고창군 심원면 선운대로 2517-8";
-                        this.fishSpecies = "어종 : 뱀장어";
+                        this.fmsName = "장치3";
+                        this.address = "주소3";
+                        this.fishSpecies = "업종";
                         break;
                     case 4:
-                        this.fisheryName = "중부수산영어조합법인(1)";
-                        this.address = "충북 충주시 금가면 연합강변길 92";
-                        this.fishSpecies = "어종 : 뱀장어";
+                        this.fmsName = "장치4";
+                        this.address = "주소4";
+                        this.fishSpecies = "업종";
                         break;
                     case 5:
-                        this.fisheryName = "중부수산영어조합법인(2)";
-                        this.address = "충북 충주시 금가면 연합강변길 92";
-                        this.fishSpecies = "어종 : 뱀장어";
+                        this.fmsName = "장치5";
+                        this.address = "주소5";
+                        this.fishSpecies = "업종";
                         break;
                     case 6:
-                        this.fisheryName = "SG수산";
-                        this.address = "부산 기장군 일광면 일광로 307";
-                        this.fishSpecies = "어종 : 다양";
+                        this.fmsName = "장치6";
+                        this.address = "주소6";
+                        this.fishSpecies = "업종";
                         break;
                 }
-            }
+            },
+            menuItemClickEvent: function(id) {
+                let menuitem = document.getElementById("chart-menu");
+                console.log(menuitem);
+                menuitem.classList.add("is-opened");
+                menuitem.setAttribute("aria-expanded", "true");
+                menuitem.style.backgroundColor = "#d4dde6";
+                menuitem.childNodes.item(0).style.pointerEvents = 'none';
+                menuitem.childNodes.item(0).style.opacity = 0.7;
+                menuitem.childNodes.item(1).style.display = '';
+
+                let itemGroup = document.getElementById("chart-item-group");
+                itemGroup.style.display = "";
+                let elMenuItem = document.getElementById(id);
+                elMenuItem.style.backgroundColor = "#d4dde6";
+                elMenuItem.style.opacity = 0.5;
+                elMenuItem.style.pointerEvents = "none";
+            },
+            pauseRead() {
+                console.log("Called pause!")
+                this.pause = !this.pause;
+                if (!this.pause) {
+                    console.log("Restart!")
+                    google.charts.setOnLoadCallback(this.drawChart);
+                } else {
+                    this.pausing = true;
+                }
+            },
+            openMessage(msg) {
+                this.$message(msg);
+            },
+            openNoDataMessage() {
+                const h = this.$createElement;
+                this.$message.error({
+                    showClose: true,
+                    message: h('p', null, [
+                        h('span', {style: 'color: #9b4b4b'}, '조회된'),
+                        h('i', {style: 'color: #fb5151'}, "'데이터'"),
+                        h('span', {style: 'color: #9b4b4b'}, '가 없습니다.'),
+                    ])
+                });
+            },
         },
         mounted: vueMounted,
     })

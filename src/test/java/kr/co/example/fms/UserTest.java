@@ -44,7 +44,7 @@ public class UserTest {
 //            String numberFormat = new DecimalFormat("00").format(i);
 //
 //            User user1 = new User();
-//            user1.setUsername("fishery" + numberFormat);
+//            user1.setUsername("fms" + numberFormat);
 //            user1.setPassword("!qsol1235");
 //            user1.setFullName("어업인" + numberFormat);
 //            user1.setDeviceId(i);
