@@ -3,7 +3,6 @@ package kr.co.example.fms;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -19,10 +18,10 @@ public class ViewController {
         return ResponseEntity.ok("I'm very healthy. Thank you!");
     }
 
-    @GetMapping("/home")
+    @GetMapping("/mof100_packets")
     public String home(HttpServletRequest request) {
-        log.info("/home --> {}", request.getRemoteHost());
-        return "home";
+        log.info("/mof100_packets --> {}", request.getRemoteHost());
+        return "mof100_packets";
     }
 
     @GetMapping("/chart/{deviceId}")

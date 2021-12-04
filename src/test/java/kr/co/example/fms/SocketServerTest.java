@@ -1,6 +1,6 @@
 package kr.co.example.fms;
 
-import kr.co.qsol.fishery.util.ByteUtil;
+import kr.co.example.fms.util.ByteUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

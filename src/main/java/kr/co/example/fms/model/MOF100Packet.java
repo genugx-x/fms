@@ -1,6 +1,6 @@
 package kr.co.example.fms.model;
 
-import kr.co.qsol.fishery.util.ByteUtil;
+import kr.co.example.fms.util.ByteUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static kr.co.qsol.fishery.util.ByteUtil.byteToHexString;
+import static kr.co.example.fms.util.ByteUtil.byteToHexString;
 
 @Data
 @Document(collection = "packet")

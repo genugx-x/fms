@@ -1,13 +1,13 @@
 version: "3"
 
 services:
-  fishery-mongo:
+  fms-mongo:
     image: mongo
     restart: always
-    container_name: fishery-mongo
+    container_name: fms-mongo
     volumes:
-      - D:/docker-volume/mongo/fishery/configdb:/data/configdb
-      - D:/docker-volume/mongo/fishery/db:/data/db
+      - D:/docker-volume/mongo/fms/configdb:/data/configdb
+      - D:/docker-volume/mongo/fms/db:/data/db
     ports:
       - "27018:27017"
     environment:

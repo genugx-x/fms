@@ -1,13 +1,13 @@
 version: "3"
 
 services:
-  fishery-mongo:
+  fms-mongo:
     image: mongo
     restart: always
-    container_name: fishery-mongo
+    container_name: fms-mongo
     volumes:
-      - /projects/docker-volumes/mongo/fishery/configdb:/data/configdb
-      - /projects/docker-volumes/mongo/fishery/db:/data/db
+      - /projects/docker-volumes/mongo/fms/configdb:/data/configdb
+      - /projects/docker-volumes/mongo/fms/db:/data/db
     privileged: true
     #command: [--auth]
     ports:

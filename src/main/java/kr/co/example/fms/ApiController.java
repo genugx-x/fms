@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.coyote.Response;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.DateOperators;
@@ -18,11 +19,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,24 +46,10 @@ public class ApiController {
 
     final MongoTemplate mongoTemplate;
 
-    // 표
-    @GetMapping("/mof100/list")
-    public String recentlyPacketList(HttpServletRequest request, Model model) {
-        log.info("/mof100/list-->{}", request.getRemoteHost());
-        return "recently_packet2";
-    }
-
-    // 그래프 차트
-    @GetMapping("/mof100/list2")
-    public String recentlyPacketList2(HttpServletRequest request, Model model) {
-        log.info("/mof100/list2-->{}", request.getRemoteHost());
-        return "recently_packet";
-    }
-
     // 데이터 호출
     @GetMapping("/mof100/data")
-    public ResponseEntity<?> findAll(HttpServletRequest request) {
-        log.info("/mof100/data/{} -->{}", request.getRemoteHost());
+    public ResponseEntity<List<MOF100Packet>> findAll(HttpServletRequest request) {
+        log.info("/mof100/data ---> {}", request.getRemoteHost());
         Query query = new Query();
         query.fields().include("createAt", "dataType", "deviceId", "hostAddress", "sourcePort", "payload");
         long start = System.currentTimeMillis();
@@ -106,8 +97,8 @@ public class ApiController {
     // 데이터 호출
     @GetMapping("/test/data/{deviceId}/{createAt}")
     public ResponseEntity<List<MOF100Packet>> getDataTest(HttpServletRequest request, @PathVariable Long deviceId, @PathVariable String createAt) throws ParseException {
-        log.info("/test/data/{}/{} -->{}", deviceId, createAt, request.getRemoteHost());
-        // log.info("{}", createAt);
+        //log.info("/test/data/{}/{} -->{}", deviceId, createAt, request.getRemoteHost());
+        //log.info("{}", createAt);
         Query query = new Query();
         query.fields().include("createAt", "dataType", "deviceId", "hostAddress", "sourcePort", "payload");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
@@ -126,16 +117,16 @@ public class ApiController {
         long sec = TimeUnit.MILLISECONDS.toSeconds(time);
         long remainMilliSec = time - TimeUnit.SECONDS.toMillis(sec);
         long remainSec = TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(min);
-        log.info("Data lookup time ----- {}.{}(sec)", sec, remainMilliSec);
+        // log.info("Data lookup time ----- {}.{}(sec)", sec, remainMilliSec);
 
-        log.info("list.size():{}", list.size());
+        // log.info("list.size():{}", list.size());
         return ResponseEntity.ok(list);
     }
 
     // 데이터 호출
     @GetMapping("/test/data/{deviceId}")
     public ResponseEntity<List<MOF100Packet>> getDataTest(HttpServletRequest request, @PathVariable Long deviceId) {
-        log.info("/test/data/{} -->{}", deviceId, request.getRemoteHost());
+        // log.info("/test/data/{} -->{}", deviceId, request.getRemoteHost());
         Query query = new Query();
         query.fields().include("createAt", "dataType", "deviceId", "hostAddress", "sourcePort", "payload");
         query.addCriteria(Criteria.where("deviceId").is(deviceId));
@@ -150,12 +141,109 @@ public class ApiController {
         long sec = TimeUnit.MILLISECONDS.toSeconds(time);
         long remainMilliSec = time - TimeUnit.SECONDS.toMillis(sec);
         long remainSec = TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(min);
-        log.info("Data lookup time ----- {}.{}(sec)", sec, remainMilliSec);
+        // log.info("Data lookup time ----- {}.{}(sec)", sec, remainMilliSec);
 
-        log.info("list.size():{}", list.size());
+        // log.info("list.size():{}", list.size());
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping(value = "/download/csv")
+    public void downloadCsv(HttpServletRequest request, HttpServletResponse response) {
+
+        log.info("/download/csv-->{}", request.getRemoteHost());
+
+        final String fileName = String.format("MOF100_%s.csv", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
+        Query query = new Query();
+        // UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<MOF100Packet> list =
+                mongoTemplate.find(
+                        query.with(Sort.by(Sort.Direction.DESC, "createAt")).limit(86_400)
+                        //query.with(Sort.by(Sort.Direction.DESC, "createAt")).limit(100)
+                        , MOF100Packet.class);
+        log.info("list.size():{}", list.size());
+        try {
+            response.setContentType("text/csv;charset=euc-kr");
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + fileName + "\"");
+            CSVPrinter csvPrinter = new CSVPrinter(response.getWriter(),
+                    CSVFormat.DEFAULT.withHeader(
+                            "시각",
+                            "data-type",
+                            "device-id",
+                            "ip",
+                            "진동최대(ch1)", "진동최소(ch1)", "진동편차(ch1)", "진동평균(ch1)",
+                            "전류최대(ch7)", "전류최소(ch7)", "전류편차(ch7)", "전류평균(ch7)"));
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+            for (MOF100Packet packet : list){
+
+                ChannelData ch1 = packet.getPayload().stream().filter(c->c.getNo()==1).findFirst().get();
+                ChannelData ch7 = packet.getPayload().stream().filter(c->c.getNo()==7).findFirst().get();
+
+                csvPrinter.printRecord(Arrays.asList(sdf.format(packet.getCreateAt()), packet.getDataType(), packet.getDeviceId(), packet.getHostAddress() + ":" + packet.getSourcePort(), ch1.getMax(), ch1.getMin(), ch1.getDeviation(), ch1.getAvg(), ch7.getMax(), ch7.getMin(), ch7.getDeviation(), ch7.getAvg()));
+
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+
+    @GetMapping(value = "/download/csv/{deviceId}")
+    public void downloadCsv(HttpServletRequest request, HttpServletResponse response, @PathVariable Long deviceId) {
+
+        log.info("/download/csv/{}-->{}", deviceId, request.getRemoteHost());
+
+        final String fileName = String.format("MOF100_deivceId_"+ deviceId +"_%s.csv", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
+        Query query = new Query();
+        // UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        query.addCriteria(Criteria.where("deviceId").is(deviceId));
+        List<MOF100Packet> list =
+                mongoTemplate.find(
+                        query.with(Sort.by(Sort.Direction.DESC, "createAt")).limit(86_400)
+                        // query.with(Sort.by(Sort.Direction.DESC, "createAt")).limit(100)
+                        , MOF100Packet.class);
+        log.info("list.size():{}", list.size());
+
+        String userAgent = request.getHeader("User-Agent");
+        try {
+            log.info("fileName : {}", fileName);
+            response.setContentType("text/csv;charset=euc-kr");
+            if (userAgent.contains("MSIE") || userAgent.contains("Trident")) {
+                response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename=" + fileName + ";");
+            } else {
+                response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + fileName + "\"");
+            }
+            CSVPrinter csvPrinter = new CSVPrinter(response.getWriter(),
+                    CSVFormat.DEFAULT.withHeader(
+                            "시각",
+                            "data-type",
+                            "device-id",
+                            "ip",
+                            "진동최대(ch1)", "진동최소(ch1)", "진동편차(ch1)", "진동평균(ch1)",
+                            "전류최대(ch7)", "전류최소(ch7)", "전류편차(ch7)", "전류평균(ch7)"));
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+            for (MOF100Packet packet : list){
+
+                ChannelData ch1 = packet.getPayload().stream().filter(c->c.getNo()==1).findFirst().get();
+                ChannelData ch7 = packet.getPayload().stream().filter(c->c.getNo()==7).findFirst().get();
+                // log.info("csv : {}", Arrays.asList(sdf.format(packet.getCreateAt()), packet.getDataType(), packet.getDeviceId(), packet.getHostAddress() + ":" + packet.getSourcePort(), ch1.getMax(), ch1.getMin(), ch1.getDeviation(), ch1.getAvg(), ch7.getMax(), ch7.getMin(), ch7.getDeviation(), ch7.getAvg()));
+                csvPrinter.printRecord(Arrays.asList(sdf.format(packet.getCreateAt()), packet.getDataType(), packet.getDeviceId(), packet.getHostAddress() + ":" + packet.getSourcePort(), ch1.getMax(), ch1.getMin(), ch1.getDeviation(), ch1.getAvg(), ch7.getMax(), ch7.getMin(), ch7.getDeviation(), ch7.getAvg()));
+
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+
+    // 사용안함
+    /*
     @GetMapping(value = "/mof100/csv")
     public void mof100Dcsv(HttpServletRequest request, HttpServletResponse response) {
 
@@ -166,19 +254,19 @@ public class ApiController {
         // deviceId 6번 아이디만 보이게
         Query query = new Query();
 
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if("device6".equals(userDetails.getUsername())) query.addCriteria(Criteria.where("deviceId").is(6));
+        // if("device6".equals(userDetails.getUsername())) query.addCriteria(Criteria.where("deviceId").is(6));
 
         List<MOF100Packet> list =
                 mongoTemplate.find(
                         //new Query().addCriteria(Criteria.where("deviceId").is(5))//.with(Sort.by(Sort.Direction.DESC, "createAt"))//.limit(86_400)
-                       query.with(Sort.by(Sort.Direction.DESC, "createAt")).limit(86_400)
+                       query.with(Sort.by(Sort.Direction.DESC, "createAt")).limit(100)
                         , MOF100Packet.class);
 
         //List<MOF100Packet> list = mongoTemplate.findAll (MOF100Packet.class, "packet");
 
-        log.info("list.size():{}", list.size());
+        //log.info("list.size():{}", list.size());
 
         try {
             response.setContentType("text/csv;charset=euc-kr");
@@ -204,5 +292,5 @@ public class ApiController {
             log.error(e.getMessage(), e);
             e.printStackTrace();
         }
-    }
+    }*/
 }

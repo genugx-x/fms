@@ -7,9 +7,9 @@
             class="el-menu-vertical-demo"
             @open="handleOpen"
             @close="handleClose">
-        <el-menu-item class="el-menu-first-item" index="1" @click="handleMenuClick()">
+        <el-menu-item id="packets-menu" class="el-menu-first-item" index="1" @click="handleMenuClick()">
             <i class="el-icon-tickets"></i>
-            <span class="first">MOF100 PACKETS</span>
+            <span class="first">TABLE</span>
         </el-menu-item>
         <el-submenu id="chart-menu" class="el-menu-second-item" index="2">
             <template slot="title">
@@ -17,14 +17,18 @@
                 <span class="second">CHART</span>
             </template>
             <el-menu-item-group id="chart-item-group">
-                <el-menu-item id="ecoaqua" index="1-1" @click="handleMenuItemClick(1)">에코아쿠아팜</el-menu-item>
-                <el-menu-item index="1-2" @click="handleMenuItemClick(2)">조인영어조합법인(1)</el-menu-item>
-                <el-menu-item index="1-3" @click="handleMenuItemClick(3)">조인영어조합법인(2)</el-menu-item>
-                <el-menu-item index="1-4" @click="handleMenuItemClick(4)">중부수산영어조합법인(1)</el-menu-item>
-                <el-menu-item index="1-5" @click="handleMenuItemClick(5)">중부수산영어조합법인(2)</el-menu-item>
-                <el-menu-item index="1-6" @click="handleMenuItemClick(6)">SG수산</el-menu-item>
+                <el-menu-item id="eco_aqua" index="1-1" @click="handleMenuItemClick(1)">장치(1)</el-menu-item>
+                <el-menu-item id="join01" index="1-2" @click="handleMenuItemClick(2)">장치(2)</el-menu-item>
+                <el-menu-item id="join02" index="1-3" @click="handleMenuItemClick(3)">장치(3)</el-menu-item>
+                <el-menu-item id="central01" index="1-4" @click="handleMenuItemClick(4)">장치(4)</el-menu-item>
+                <el-menu-item id="central02" index="1-5" @click="handleMenuItemClick(5)">장치(5)</el-menu-item>
+                <el-menu-item id="sgfs" index="1-6" @click="handleMenuItemClick(6)">장치(6)</el-menu-item>
             </el-menu-item-group>
         </el-submenu>
+        <el-menu-item id="packets-menu" class="el-menu-third-item" index="3" @click="location.replace('/logout')">
+            <img src="/images/logout-icon.png" alt="">
+            <span class="third">로그아웃</span>
+        </el-menu-item>
     </el-menu>
 </el-aside>
 

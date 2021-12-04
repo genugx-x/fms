@@ -11,7 +11,13 @@
 </th:block>
 
 <div layout:fragment="content">
-    <div id="curve_chart"></div>
+    <div id="curve_chart">
+        <template v-if="!isHaveDatas" v-show="!loading">
+            <h4 style="color: #8a91a8;margin-left: 15px;">
+                조회된 데이터가 없습니다.
+            </h4>
+        </template>
+    </div>
 </div>
 
 <th:block layout:fragment="scriptBeforeCreateVue">
@@ -20,6 +26,7 @@
             this.loading = true;
             this.deviceId = 6;
             this.setMainHeader();
+            this.menuItemClickEvent("sgfs");
             google.charts.load('current', {'packages':['corechart']});
             google.charts.setOnLoadCallback(this.drawChart);
         };

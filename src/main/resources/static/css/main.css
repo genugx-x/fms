@@ -1,3 +1,12 @@
+p {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
 th{
     border: 1px solid #444;
     background-color: gray;
@@ -15,10 +24,62 @@ tbody tr:hover{
     background-color: blanchedalmond;
 }
 
-.el-header, .el-footer {
-    background-color: #B3C0D1;
-    color: #333;
+.el-header {
+    background-color: #7b839d;
+    color: whitesmoke;
     text-align: center;
+    line-height: 60px;
+}
+
+.el-header img {
+    width: 100px;
+    vertical-align: middle;
+    margin-top: -3px;
+}
+
+.el-header .el-haeder-title {
+    text-align: start;
+    margin-top: 4px;
+    /*padding-left: 50px;*/
+    line-height: 10px;
+}
+
+#title-kor {
+    display: inline;
+    margin-left: 10px;
+    color: whitesmoke;
+    font-weight: 600;
+    font-size: 20px; !important;
+}
+
+#title-eng {
+    display: inline;
+    margin-left: 10px;
+    color: #ebe0e0;
+    font-size: 12px; !important;
+}
+
+
+.el-footer {
+    /*position: fixed;*/
+    width: 100%;
+    background-color: #e9edf0;
+    padding: 0;
+    text-align: center;
+
+}
+
+.el-footer img {
+    width: 80px;
+    vertical-align: middle;
+    margin-top: -3px;
+}
+
+.el-footer p {
+    display: inline;
+    margin-left: 10px;
+    color: #777;
+    font-size: 12px;
     line-height: 60px;
 }
 
@@ -26,6 +87,15 @@ tbody tr:hover{
 .el-aside {
     text-align: center;
 }
+
+.el-aside .el-menu .el-menu-third-item img {
+    margin-left: -7px;
+    margin-right: 8px;
+}
+
+.el-aside .el-menu .el-menu-third-item span {
+}
+
 
 .el-menu {
     /*background-color: #5c7c96;*/
@@ -35,21 +105,13 @@ tbody tr:hover{
     font-size: medium;
     color: #3a5164;
 }
-.el-menu .first {
-    /*color: #3a5164*/
-}
-.el-menu .second {
-    /*color: #e6e1b9;*/
-}
+
 .el-icon-s-data:before {
     color: #878af1;
 
 }
 .el-icon-tickets:before {
     color: #57599c;
-}
-.el-menu-item-group {/*background-color: #aebecb;*/
-
 }
 
 .el-container:nth-child(5) .el-aside,
@@ -104,7 +166,28 @@ tbody tr:hover{
 
 .el-main .el-main-header {
     text-align: left;
+    margin-top: -25px;
     /*margin-left: 20px;*/
+}
+
+.el-main .el-main-header h2 {
+    margin-bottom: 5px;
+    color: #666699;
+}
+.el-main .el-main-header span {
+    color: #a1a1aa;
+    font-weight: 600;
+    font-size: medium;
+}
+
+.el-main .el-main-hr {
+}
+
+.el-main .el-main-hr hr {
+    background-color: #c2c2d6;
+    height: 2px;
+    border-style: hidden;
+    opacity: 0.5;
 }
 
 .el-main .el-main-latest-time-row {
@@ -112,8 +195,42 @@ tbody tr:hover{
 }
 
 .el-main .el-main-btn-row {
-    margin-top: -20px;
+    margin-top: 10px;
     margin-bottom: -10px;
+}
+
+.el-main .el-main-btn-row {
+    margin-top: 10px;
+    margin-bottom: -10px;
+}
+
+.el-main .el-main-btn-row .el-main-csv-download-btn-home {
+    margin-right: -10px;
+}
+
+.el-main .el-main-btn-row .el-main-pause-btn {
+    margin-right: -7px;
+}
+
+.el-main .el-main-btn-row .el-main-pause-btn button {
+    width: 128px;
+}
+
+.el-main .el-main-btn-row .el-button--primary:focus, .el-button--primary:hover {
+    background: #9ca7c9;
+    border-color: #9ca7c9;
+    color: #FFF;
+}
+
+.el-button--primary {
+    color: #FFF;
+    background: #4060bf;
+    border-color: #4060bf;
+}
+
+.el-main .el-main-btn-row #csv-download-btn {
+    height: 40px;
+    width: 195px;
 }
 
 .el-main .el-main-chart row {
@@ -142,9 +259,13 @@ body > .el-container {
 
 #table_div, #curve_chart {
     width: 100%;
-    height: 660px;
+    height: 650px;
 }
 
-
+.el-message--error {
+    background-color: #f8e7e7;
+    /*background-color: #edf2fc;*/
+    border-color: #f8e7e7;
+}
 
 
